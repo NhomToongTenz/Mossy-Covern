@@ -1,3 +1,4 @@
+using System;
 using Player.Data;
 using Player.SateMachine.SupState;
 using Player.State;
@@ -13,6 +14,9 @@ namespace Player
 
         public PlayerIdleState IdleState { get; private set; }
         public PlayerMoveState MoveState { get; private set; }
+        public PlayerJumpState JumpState { get; private set; }
+        public PlayerLandState LandState { get; private set; }
+        public PlayerInAirState InAirState { get; private set; }
         #endregion
 
         #region Components
@@ -21,6 +25,12 @@ namespace Player
         public PlayerInputHandler InputHandler { get; private set; }
         public Rigidbody2D RB { get; private set; }
         public Vector2 CurrentVelocity { get; private set; }
+
+        #endregion
+
+        #region Check transform
+
+        [SerializeField] private Transform groundCheck;
 
         #endregion
 
@@ -42,6 +52,10 @@ namespace Player
 
             IdleState = new PlayerIdleState(this, StateMachine, playerData, "idle");
             MoveState = new PlayerMoveState(this, StateMachine, playerData, "move");
+            JumpState = new PlayerJumpState(this, StateMachine, playerData, "inAir");
+            LandState = new PlayerLandState(this, StateMachine, playerData, "land");
+            InAirState = new PlayerInAirState(this, StateMachine, playerData, "inAir");
+
         }
 
         void Start()
@@ -76,9 +90,18 @@ namespace Player
             CurrentVelocity = workspace;
         }
 
+        public void SetVelocityY(float velocity)
+        {
+            workspace.Set(CurrentVelocity.x,velocity);
+            RB.velocity = workspace;
+            CurrentVelocity = workspace;
+        }
+
         #endregion
 
         #region Check Functions
+
+        public bool CheckIfGrounded() => Physics2D.OverlapCircle(groundCheck.position, playerData.groundCheckRadius, playerData.whatIsGround);
 
         public void CheckIfShouldFlip(int xInput)
         {
@@ -88,9 +111,16 @@ namespace Player
             }
         }
 
+        public void OnDrawGizmos()
+        {
+            Gizmos.DrawWireSphere(groundCheck.position, playerData.groundCheckRadius);
+        }
+
         #endregion
 
         #region Other Functions
+        public void AnimationTrigger() => StateMachine.CurrentState.AnimationTrigger();
+        public void AnimationFinishTrigger() => StateMachine.CurrentState.FinishAnimationTrigger();
 
         private void Flip()
         {

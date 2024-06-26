@@ -12,5 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d7920c6d333b4c9d98845e49679d2f0e, type: 3}
   m_Name: playerData
   m_EditorClassIdentifier: 
-  movementVelocity: 3
-  jumpVelocity: 10
+  movementVelocity: 10
+  jumpVelocity: 15
+  amountOfJumps: 2
+  coyoteTime: 0.2
+  variableJumpHeightMultiplier: 0.5
+  groundCheckRadius: 0.3
+  whatIsGround:
+    serializedVersion: 2
+    m_Bits: 8
