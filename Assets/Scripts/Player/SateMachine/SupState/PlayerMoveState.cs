@@ -25,6 +25,8 @@ namespace Player.SateMachine.SupState
         {
             base.LogicUpdate();
 
+            player.CheckIfShouldFlip(xInput);
+
             player.SetVelocityX(playerData.movementVelocity * xInput);
 
             if (xInput == 0f)

@@ -7,20 +7,34 @@ namespace Player
 {
     public class Player : MonoBehaviour
     {
+        #region States
+
         public PlayerStateMachine StateMachine { get; private set; }
 
         public PlayerIdleState IdleState { get; private set; }
         public PlayerMoveState MoveState { get; private set; }
+        #endregion
+
+        #region Components
 
         public Animator Anim { get; private set; }
         public PlayerInputHandler InputHandler { get; private set; }
         public Rigidbody2D RB { get; private set; }
         public Vector2 CurrentVelocity { get; private set; }
 
+        #endregion
+
+        #region Others variables
+
+        public int FacingDirection { get; private set; } = 1;
 
         [SerializeField] private PlayerData playerData;
 
         private Vector2 workspace;
+
+        #endregion
+
+        #region Unity Callback Functions
 
         private void Awake()
         {
@@ -50,6 +64,11 @@ namespace Player
             StateMachine.CurrentState.PhysicsUpdate();
         }
 
+        #endregion
+
+        #region Set Functions
+
+
         public void SetVelocityX(float velocity)
         {
             workspace.Set(velocity,CurrentVelocity.y);
@@ -57,6 +76,28 @@ namespace Player
             CurrentVelocity = workspace;
         }
 
+        #endregion
 
+        #region Check Functions
+
+        public void CheckIfShouldFlip(int xInput)
+        {
+            if (xInput != 0 && xInput != FacingDirection)
+            {
+                Flip();
+            }
+        }
+
+        #endregion
+
+        #region Other Functions
+
+        private void Flip()
+        {
+            FacingDirection *= -1;
+            transform.Rotate(0.0f, 180.0f, 0.0f);
+        }
+
+        #endregion
     }
 }
