@@ -1,5 +1,6 @@
 using System;
 using Player.Data;
+using Player.SateMachine.SuperStates;
 using Player.SateMachine.SupState;
 using Player.State;
 using UnityEngine;
@@ -17,6 +18,11 @@ namespace Player
         public PlayerJumpState JumpState { get; private set; }
         public PlayerLandState LandState { get; private set; }
         public PlayerInAirState InAirState { get; private set; }
+        public PlayerTouchingState TouchingState { get; private set; }
+        public PlayerWallSlideState WallSlideState { get; private set; }
+        public PlayerWallGrabState WallGrabState { get; private set; }
+        public PlayerWallClimbState WallClimbState { get; private set; }
+
         #endregion
 
         #region Components
@@ -31,6 +37,7 @@ namespace Player
         #region Check transform
 
         [SerializeField] private Transform groundCheck;
+        [SerializeField] private Transform wallCheck;
 
         #endregion
 
@@ -55,6 +62,11 @@ namespace Player
             JumpState = new PlayerJumpState(this, StateMachine, playerData, "inAir");
             LandState = new PlayerLandState(this, StateMachine, playerData, "land");
             InAirState = new PlayerInAirState(this, StateMachine, playerData, "inAir");
+            TouchingState = new PlayerTouchingState(this, StateMachine, playerData, "touching");
+            WallSlideState = new PlayerWallSlideState(this, StateMachine, playerData, "wallSlide");
+            WallGrabState = new PlayerWallGrabState(this, StateMachine, playerData, "wallGrab");
+            WallClimbState = new PlayerWallClimbState(this, StateMachine, playerData, "wallClimb");
+
 
         }
 
@@ -103,6 +115,8 @@ namespace Player
 
         public bool CheckIfGrounded() => Physics2D.OverlapCircle(groundCheck.position, playerData.groundCheckRadius, playerData.whatIsGround);
 
+        public bool CheckIfTouchingWall() => Physics2D.Raycast(wallCheck.position, Vector2.right * FacingDirection, playerData.wallCheckDistance, playerData.whatIsGround);
+
         public void CheckIfShouldFlip(int xInput)
         {
             if (xInput != 0 && xInput != FacingDirection)
@@ -114,6 +128,7 @@ namespace Player
         public void OnDrawGizmos()
         {
             Gizmos.DrawWireSphere(groundCheck.position, playerData.groundCheckRadius);
+            Gizmos.DrawLine(wallCheck.position, wallCheck.position + Vector3.right * FacingDirection * playerData.wallCheckDistance);
         }
 
         #endregion

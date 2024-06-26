@@ -9,6 +9,8 @@ namespace Player.SateMachine.SuperStates
         protected int xInput;
         bool JumpInput;
         bool isGrounded;
+        private bool grabInput;
+        private bool isTouchingWall;
         public PlayerGroundedState(Player player, PlayerStateMachine stateMachine, PlayerData playerData, string animBoolName) : base(player, stateMachine, playerData, animBoolName)
         {
         }
@@ -31,6 +33,7 @@ namespace Player.SateMachine.SuperStates
 
             xInput = player.InputHandler.NormilizedInputX;
             JumpInput = player.InputHandler.JumpInput;
+            grabInput = player.InputHandler.GrabInput;
 
             if (JumpInput && player.JumpState.CanJump())
             {
@@ -41,6 +44,15 @@ namespace Player.SateMachine.SuperStates
                 player.InAirState.StartCoyoteTime();
                 player.JumpState.DecreaseAmountOfJumpsLeft();
                 stateMachine.ChangeState(player.InAirState);
+            }else if (isTouchingWall && grabInput)
+            {
+                stateMachine.ChangeState(player.WallGrabState);
+            }
+            else
+            {
+                player.CheckIfShouldFlip(xInput);
+                player.SetVelocityX(playerData.movementVelocity * xInput);
+                player.Anim.SetFloat("xVelocity", Mathf.Abs(player.CurrentVelocity.x));
             }
 
         }
@@ -54,6 +66,7 @@ namespace Player.SateMachine.SuperStates
         {
             base.DoChecks();
             isGrounded = player.CheckIfGrounded();
+            isTouchingWall = player.CheckIfTouchingWall();
         }
     }
 }

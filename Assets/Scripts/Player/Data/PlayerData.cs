@@ -16,8 +16,15 @@ namespace Player.Data
         public float coyoteTime = 0.2f;
         public float variableJumpHeightMultiplier = 0.5f;
 
+        [Header("Wall Slide Variables")]
+        public float wallSlideVelocity = 3f;
+
+        [Header("Wall Climb Variables")]
+        public float wallClimbVelocity = 3f;
+
         [Header("Check Variables")]
         public float groundCheckRadius = 0.3f;
+        public float wallCheckDistance = 0.5f;
         public LayerMask whatIsGround;
     }
 }
