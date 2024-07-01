@@ -24,7 +24,7 @@ namespace Player
         public PlayerWallClimbState WallClimbState { get; private set; }
         public PlayerWallJumpState WallJumpState { get; private set; }
         public PlayerLedgeClimbState LedgeClimbState { get; private set; }
-
+        public PlayerDashState DashState { get; private set; }
         #endregion
 
         #region Components
@@ -71,6 +71,7 @@ namespace Player
             WallClimbState = new PlayerWallClimbState(this, StateMachine, playerData, "wallClimb");
             WallJumpState = new PlayerWallJumpState(this, StateMachine, playerData, "inAir");
             LedgeClimbState = new PlayerLedgeClimbState(this, StateMachine, playerData, "ledgeClimbState");
+            DashState = new PlayerDashState(this, StateMachine, playerData, "inAir");
 
         }
 

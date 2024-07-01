@@ -7,6 +7,7 @@ namespace Player.SateMachine.SuperStates
     public class PlayerGroundedState : PlayerState
     {
         protected int xInput;
+        protected bool dashInput;
         bool JumpInput;
         bool isGrounded;
         private bool grabInput;
@@ -21,6 +22,7 @@ namespace Player.SateMachine.SuperStates
             base.Enter();
 
             player.JumpState.ResetAmountOfJumpsLeft();
+            player.DashState.ResetCanDash();
         }
 
         public override void Exit()
@@ -37,6 +39,7 @@ namespace Player.SateMachine.SuperStates
             xInput = player.InputHandler.NormilizedInputX;
             JumpInput = player.InputHandler.JumpInput;
             grabInput = player.InputHandler.GrabInput;
+            dashInput = player.InputHandler.DashInput;
 
             if (JumpInput && player.JumpState.CanJump())
             {
@@ -49,14 +52,9 @@ namespace Player.SateMachine.SuperStates
             }else if (isTouchingWall && grabInput && isTouchingLedge)
             {
                 stateMachine.ChangeState(player.WallGrabState);
+            }else if (dashInput && player.DashState.CheckIfCanDash()) {
+                stateMachine.ChangeState(player.DashState);
             }
-            // else
-            // {
-            //     player.CheckIfShouldFlip(xInput);
-            //     player.SetVelocityX(playerData.movementVelocity * xInput);
-            //     player.Anim.SetFloat("xVelocity", Mathf.Abs(player.CurrentVelocity.x));
-            // }
-
         }
 
         public override void PhysicsUpdate()

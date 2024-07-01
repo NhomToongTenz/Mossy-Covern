@@ -6,19 +6,26 @@ namespace Player.SateMachine.SupState
 {
     public class PlayerInAirState : PlayerState
     {
+
+        //Input
         private int _xInput;
         private bool _jumpInput;
+        private bool _grabInput;
+        private bool _dashInput;
+
+        //Checks
         private bool _jumpInputStop;
         private bool _isGrounded;
         private bool _isTouchingWall;
         private bool _isTouchingWallBack;
         private bool _oldIsTouchingWall;
         private bool _oldIsTouchingWallBack;
-        private bool _coyoteTime;
         private bool _isTouchingLedge;
+
+        private bool _coyoteTime;
         private bool _wallJumpCoyoteTime;
         private bool _isJumping;
-        private bool _grabInput;
+
 
         private float _startWallJumpCoyoteTime;
 
@@ -40,6 +47,7 @@ namespace Player.SateMachine.SupState
             _jumpInput = player.InputHandler.JumpInput;
             _jumpInputStop = player.InputHandler.JumpInputStop;
             _grabInput = player.InputHandler.GrabInput;
+            _dashInput = player.InputHandler.DashInput;
 
             CheckJumpMultiplier();
 
@@ -63,6 +71,8 @@ namespace Player.SateMachine.SupState
             else if (_isTouchingWall && !_isGrounded && player.CurrentVelocity.y <= 0 &&
                      _xInput == player.FacingDirection) {
                 stateMachine.ChangeState(player.WallSlideState);
+            }else if (_dashInput && player.DashState.CheckIfCanDash()) {
+                stateMachine.ChangeState(player.DashState);
             }
             else {
                 player.CheckIfShouldFlip(_xInput);

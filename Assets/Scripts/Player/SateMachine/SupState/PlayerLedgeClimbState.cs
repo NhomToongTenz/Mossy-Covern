@@ -13,9 +13,11 @@ namespace Player.SateMachine.SupState
 
         private bool isHanging;
         private bool isClimbing;
+        private bool jumpInput;
 
         private int xInput;
         private int yInput;
+
         public PlayerLedgeClimbState(Player player, PlayerStateMachine stateMachine, PlayerData playerData, string animBoolName) : base(player, stateMachine, playerData, animBoolName) { }
 
         public void SetDetectedPosition(Vector2 pos) => detectedPos = pos;
@@ -45,6 +47,7 @@ namespace Player.SateMachine.SupState
             else {
                 xInput = player.InputHandler.NormilizedInputX;
                 yInput = player.InputHandler.NormilizedInputY;
+                jumpInput = player.InputHandler.JumpInput;
 
                 player.SetVelocityZero();
                 player.transform.position = startPos;
@@ -55,6 +58,9 @@ namespace Player.SateMachine.SupState
                 }
                 else if (yInput == -1 && isHanging && !isClimbing) {
                     stateMachine.ChangeState(player.InAirState);
+                }else if (jumpInput && !isClimbing) {
+                    player.WallJumpState.DetermineWallJumpDirection(true);
+                    stateMachine.ChangeState(player.WallJumpState);
                 }
             }
         }
