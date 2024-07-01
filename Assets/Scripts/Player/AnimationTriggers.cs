@@ -7,7 +7,7 @@ namespace Player
     {
         private Player player => GetComponentInParent<Player>();
 
-        private void AnimationTriggerEnter() => player.AnimationFinishTrigger();
-
+        private void AnimationFinishTrigger() => player.AnimationFinishTrigger();
+        private void AnimationTrigger() => player.AnimationTrigger();
     }
 }

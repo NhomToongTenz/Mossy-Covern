@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace Player.SateMachine.SupState
 {
-    public class PlayerWallGrabState : PlayerTouchingState
+    public class PlayerWallGrabState : PlayerTouchingWallState
     {
         private Vector2  holdPosition;
         public PlayerWallGrabState(Player player, PlayerStateMachine stateMachine, PlayerData playerData, string animBoolName) : base(player, stateMachine, playerData, animBoolName)
@@ -30,14 +30,14 @@ namespace Player.SateMachine.SupState
         {
             base.LogicUpdate();
 
-            HoldPosition();
-
-            if (yInput > 0)
-            {
-                stateMachine.ChangeState(player.WallClimbState);
-            }else if (yInput < 0 || !grabInput)
-            {
-                stateMachine.ChangeState(player.WallSlideState);
+            if (!isExitingState) {
+                HoldPosition();
+                if (yInput > 0) {
+                    stateMachine.ChangeState(player.WallClimbState);
+                }
+                else if (yInput < 0 || !grabInput) {
+                    stateMachine.ChangeState(player.WallSlideState);
+                }
             }
         }
 

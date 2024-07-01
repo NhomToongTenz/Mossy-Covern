@@ -26,7 +26,7 @@ namespace Player.SateMachine.SupState
         {
             base.LogicUpdate();
 
-            if (xInput != 0f)
+            if (xInput != 0f && !isExitingState)
             {
                 stateMachine.ChangeState(player.MoveState);
             }

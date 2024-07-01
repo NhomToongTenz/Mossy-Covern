@@ -18,10 +18,12 @@ namespace Player
         public PlayerJumpState JumpState { get; private set; }
         public PlayerLandState LandState { get; private set; }
         public PlayerInAirState InAirState { get; private set; }
-        public PlayerTouchingState TouchingState { get; private set; }
+        public PlayerTouchingWallState TouchingWallState { get; private set; }
         public PlayerWallSlideState WallSlideState { get; private set; }
         public PlayerWallGrabState WallGrabState { get; private set; }
         public PlayerWallClimbState WallClimbState { get; private set; }
+        public PlayerWallJumpState WallJumpState { get; private set; }
+        public PlayerLedgeClimbState LedgeClimbState { get; private set; }
 
         #endregion
 
@@ -38,6 +40,7 @@ namespace Player
 
         [SerializeField] private Transform groundCheck;
         [SerializeField] private Transform wallCheck;
+        [SerializeField] private Transform ledgeCheck;
 
         #endregion
 
@@ -62,11 +65,12 @@ namespace Player
             JumpState = new PlayerJumpState(this, StateMachine, playerData, "inAir");
             LandState = new PlayerLandState(this, StateMachine, playerData, "land");
             InAirState = new PlayerInAirState(this, StateMachine, playerData, "inAir");
-            TouchingState = new PlayerTouchingState(this, StateMachine, playerData, "touching");
+            TouchingWallState = new PlayerTouchingWallState(this, StateMachine, playerData, "touching");
             WallSlideState = new PlayerWallSlideState(this, StateMachine, playerData, "wallSlide");
             WallGrabState = new PlayerWallGrabState(this, StateMachine, playerData, "wallGrab");
             WallClimbState = new PlayerWallClimbState(this, StateMachine, playerData, "wallClimb");
-
+            WallJumpState = new PlayerWallJumpState(this, StateMachine, playerData, "inAir");
+            LedgeClimbState = new PlayerLedgeClimbState(this, StateMachine, playerData, "ledgeClimbState");
 
         }
 
@@ -94,6 +98,18 @@ namespace Player
 
         #region Set Functions
 
+        public void SetVelocityZero() {
+            RB.velocity = Vector2.zero;
+            CurrentVelocity = Vector2.zero;
+        }
+        public void SetVelocity(float velocity, Vector2 angle, int direction)
+        {
+            angle.Normalize();
+            workspace.Set(angle.x * velocity * direction, angle.y * velocity);
+            //Debug.Log(workspace);
+            RB.velocity = workspace;
+            CurrentVelocity = workspace;
+        }
 
         public void SetVelocityX(float velocity)
         {
@@ -113,8 +129,10 @@ namespace Player
 
         #region Check Functions
 
+        public bool CheckIfTouchingLedge() => Physics2D.Raycast(ledgeCheck.position, Vector2.right * FacingDirection
+                                                             , playerData.wallCheckDistance, playerData.whatIsGround);
         public bool CheckIfGrounded() => Physics2D.OverlapCircle(groundCheck.position, playerData.groundCheckRadius, playerData.whatIsGround);
-
+        public bool CheckIfTouchingWallBack() => Physics2D.Raycast(wallCheck.position, Vector2.right * -FacingDirection, playerData.wallCheckDistance, playerData.whatIsGround);
         public bool CheckIfTouchingWall() => Physics2D.Raycast(wallCheck.position, Vector2.right * FacingDirection, playerData.wallCheckDistance, playerData.whatIsGround);
 
         public void CheckIfShouldFlip(int xInput)
@@ -128,12 +146,31 @@ namespace Player
         public void OnDrawGizmos()
         {
             Gizmos.DrawWireSphere(groundCheck.position, playerData.groundCheckRadius);
-            Gizmos.DrawLine(wallCheck.position, wallCheck.position + Vector3.right * FacingDirection * playerData.wallCheckDistance);
+            Gizmos.DrawLine(wallCheck.position
+                          , wallCheck.position + Vector3.right * FacingDirection * playerData.wallCheckDistance);
+            Gizmos.DrawLine(ledgeCheck.position
+                          , ledgeCheck.position + Vector3.right * FacingDirection * playerData.wallCheckDistance);
+
         }
 
         #endregion
 
         #region Other Functions
+
+        public Vector2 DetermineCornerPosition() {
+            RaycastHit2D xHit = Physics2D.Raycast(wallCheck.position, Vector2.right * FacingDirection
+                                                , playerData.wallCheckDistance, playerData.whatIsGround);
+            float xDist = xHit.distance;
+
+            workspace.Set(xDist * FacingDirection, 0f);
+            RaycastHit2D yHit = Physics2D.Raycast(ledgeCheck.position + (Vector3)(workspace), Vector2.down
+                                                , ledgeCheck.position.y - wallCheck.position.y
+                                                , playerData.whatIsGround);
+            float yDist = yHit.distance;
+
+            workspace.Set(wallCheck.position.x + (xDist * FacingDirection), ledgeCheck.position.y - yDist);
+            return workspace;
+        }
         public void AnimationTrigger() => StateMachine.CurrentState.AnimationTrigger();
         public void AnimationFinishTrigger() => StateMachine.CurrentState.FinishAnimationTrigger();
 

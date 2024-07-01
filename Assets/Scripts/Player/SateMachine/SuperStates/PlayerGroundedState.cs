@@ -11,6 +11,7 @@ namespace Player.SateMachine.SuperStates
         bool isGrounded;
         private bool grabInput;
         private bool isTouchingWall;
+        private bool isTouchingLedge;
         public PlayerGroundedState(Player player, PlayerStateMachine stateMachine, PlayerData playerData, string animBoolName) : base(player, stateMachine, playerData, animBoolName)
         {
         }
@@ -25,7 +26,9 @@ namespace Player.SateMachine.SuperStates
         public override void Exit()
         {
             base.Exit();
+
         }
+
 
         public override void LogicUpdate()
         {
@@ -37,23 +40,22 @@ namespace Player.SateMachine.SuperStates
 
             if (JumpInput && player.JumpState.CanJump())
             {
-                player.InputHandler.UseJumpInput();
                 stateMachine.ChangeState(player.JumpState);
             }else if (!isGrounded)
             {
                 player.InAirState.StartCoyoteTime();
                 player.JumpState.DecreaseAmountOfJumpsLeft();
                 stateMachine.ChangeState(player.InAirState);
-            }else if (isTouchingWall && grabInput)
+            }else if (isTouchingWall && grabInput && isTouchingLedge)
             {
                 stateMachine.ChangeState(player.WallGrabState);
             }
-            else
-            {
-                player.CheckIfShouldFlip(xInput);
-                player.SetVelocityX(playerData.movementVelocity * xInput);
-                player.Anim.SetFloat("xVelocity", Mathf.Abs(player.CurrentVelocity.x));
-            }
+            // else
+            // {
+            //     player.CheckIfShouldFlip(xInput);
+            //     player.SetVelocityX(playerData.movementVelocity * xInput);
+            //     player.Anim.SetFloat("xVelocity", Mathf.Abs(player.CurrentVelocity.x));
+            // }
 
         }
 
@@ -67,6 +69,8 @@ namespace Player.SateMachine.SuperStates
             base.DoChecks();
             isGrounded = player.CheckIfGrounded();
             isTouchingWall = player.CheckIfTouchingWall();
+            isTouchingLedge = player.CheckIfTouchingLedge();
+
         }
     }
 }

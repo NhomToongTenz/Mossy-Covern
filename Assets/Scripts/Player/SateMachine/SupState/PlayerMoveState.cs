@@ -29,7 +29,7 @@ namespace Player.SateMachine.SupState
 
             player.SetVelocityX(playerData.movementVelocity * xInput);
 
-            if (xInput == 0f)
+            if (xInput == 0f && !isExitingState)
             {
                 stateMachine.ChangeState(player.IdleState);
             }

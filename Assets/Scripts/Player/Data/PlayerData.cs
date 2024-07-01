@@ -22,6 +22,14 @@ namespace Player.Data
         [Header("Wall Climb Variables")]
         public float wallClimbVelocity = 3f;
 
+        [Header("Wall Jump Variables")] public float wallJumpVelocity = 20f;
+        public float wallJumpTime = 0.4f;
+        public Vector2 wallJumpAngle = new Vector2(1, 2);
+
+        [Header("Ledge Climb Variables")]
+        public Vector2 startOffset;
+        public Vector2 stopOffset;
+
         [Header("Check Variables")]
         public float groundCheckRadius = 0.3f;
         public float wallCheckDistance = 0.5f;
