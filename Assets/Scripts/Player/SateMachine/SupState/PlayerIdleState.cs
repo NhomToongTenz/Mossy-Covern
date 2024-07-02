@@ -1,7 +1,6 @@
 using Player.Data;
 using Player.SateMachine.SuperStates;
 using Player.State;
-using UnityEngine;
 
 namespace Player.SateMachine.SupState
 {
@@ -18,28 +17,23 @@ namespace Player.SateMachine.SupState
         }
 
         public override void Exit()
-        {
-            base.Exit();
-        }
+        { }
 
         public override void LogicUpdate()
         {
             base.LogicUpdate();
 
-            if (xInput != 0f && !isExitingState)
-            {
-                stateMachine.ChangeState(player.MoveState);
+            if (!isExitingState) {
+                if (XInput != 0f)
+                {
+                    stateMachine.ChangeState(player.MoveState);
+                }else if (YInput == -1) {
+                    stateMachine.ChangeState(player.CrouchIdleState);
+                }
             }
         }
 
         public override void PhysicsUpdate()
-        {
-            base.PhysicsUpdate();
-        }
-
-        public override void DoChecks()
-        {
-            base.DoChecks();
-        }
+        { }
     }
 }

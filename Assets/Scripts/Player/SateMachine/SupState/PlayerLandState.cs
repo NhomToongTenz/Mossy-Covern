@@ -1,7 +1,6 @@
 using Player.Data;
 using Player.SateMachine.SuperStates;
 using Player.State;
-using UnityEngine;
 
 namespace Player.SateMachine.SupState
 {
@@ -18,7 +17,7 @@ namespace Player.SateMachine.SupState
             if(isExitingState)
                 return;
 
-            if(xInput != 0)
+            if(XInput != 0)
                 stateMachine.ChangeState(player.MoveState);
             else if(isAnimationFinished)
                 stateMachine.ChangeState(player.IdleState);

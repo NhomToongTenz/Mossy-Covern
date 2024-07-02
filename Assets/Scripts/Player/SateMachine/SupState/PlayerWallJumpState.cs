@@ -8,7 +8,10 @@ namespace Player.SateMachine.SupState
 {
     public class PlayerWallJumpState : PlayerAbilityState
     {
-        private int wallJumpDirection;
+        private int _wallJumpDirection;
+        private static readonly int YVelocity = Animator.StringToHash("yVelocity");
+        private static readonly int XVelocity = Animator.StringToHash("xVelocity");
+
         public PlayerWallJumpState(Player player, PlayerStateMachine stateMachine, PlayerData playerData, string animBoolName) : base(player, stateMachine, playerData, animBoolName)
         {
         }
@@ -18,8 +21,8 @@ namespace Player.SateMachine.SupState
             base.Enter();
 
             player.JumpState.ResetAmountOfJumpsLeft();
-            player.SetVelocity(playerData.wallJumpVelocity, playerData.wallJumpAngle, wallJumpDirection);
-            player.CheckIfShouldFlip(wallJumpDirection);
+            player.SetVelocity(playerData.wallJumpVelocity, playerData.wallJumpAngle, _wallJumpDirection);
+            player.CheckIfShouldFlip(_wallJumpDirection);
             player.JumpState.DecreaseAmountOfJumpsLeft();
         }
 
@@ -27,8 +30,8 @@ namespace Player.SateMachine.SupState
         {
             base.LogicUpdate();
 
-            player.Anim.SetFloat("yVelocity", player.CurrentVelocity.y);
-            player.Anim.SetFloat("xVelocity", MathF.Abs(player.CurrentVelocity.x));
+            player.Anim.SetFloat(YVelocity, player.CurrentVelocity.y);
+            player.Anim.SetFloat(XVelocity, MathF.Abs(player.CurrentVelocity.x));
 
             if (Time.time >= startTime + playerData.wallJumpTime) {
                 IsAbilityDone = true;
@@ -40,11 +43,11 @@ namespace Player.SateMachine.SupState
         {
             if (isTouchingWall)
             {
-                wallJumpDirection = -player.FacingDirection;
+                _wallJumpDirection = -player.FacingDirection;
             }
             else
             {
-                wallJumpDirection = player.FacingDirection;
+                _wallJumpDirection = player.FacingDirection;
             }
         }
     }

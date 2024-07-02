@@ -1,4 +1,5 @@
 using Player.Data;
+using Player.Input_System;
 using Player.State;
 using UnityEngine;
 
@@ -43,15 +44,22 @@ namespace Player.SateMachine.SupState
             CheckCoyoteTime();
             CheckWallJumpCoyoteTime();
 
-            _xInput = player.InputHandler.NormilizedInputX;
-            _jumpInput = player.InputHandler.JumpInput;
-            _jumpInputStop = player.InputHandler.JumpInputStop;
-            _grabInput = player.InputHandler.GrabInput;
-            _dashInput = player.InputHandler.DashInput;
+            var inputHandler = player.InputHandler;
+            _xInput = inputHandler.NormilizedInputX;
+            _jumpInput = inputHandler.JumpInput;
+            _jumpInputStop = inputHandler.JumpInputStop;
+            _grabInput = inputHandler.GrabInput;
+            _dashInput = inputHandler.DashInput;
 
             CheckJumpMultiplier();
 
-            if(_isGrounded && player.CurrentVelocity.y < 0.01f)
+            if (player.InputHandler.AttackInputs[(int)CombatInputs.Primary]) {
+                stateMachine.ChangeState(player.PrimaryAttackState);
+            }
+            else if (player.InputHandler.AttackInputs[(int)CombatInputs.Secondary]) {
+                stateMachine.ChangeState(player.SecondaryAttackState);
+            }
+            else if(_isGrounded && player.CurrentVelocity.y < 0.01f)
                 stateMachine.ChangeState(player.LandState);
             else if (_isTouchingWall && !_isTouchingLedge && !_isGrounded) {
                 stateMachine.ChangeState(player.LedgeClimbState);

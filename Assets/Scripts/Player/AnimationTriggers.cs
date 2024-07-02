@@ -1,13 +1,12 @@
-using Player.State;
 using UnityEngine;
 
 namespace Player
 {
     public class AnimationTriggers : MonoBehaviour
     {
-        private Player player => GetComponentInParent<Player>();
+        private Player Player => GetComponentInParent<Player>();
 
-        private void AnimationFinishTrigger() => player.AnimationFinishTrigger();
-        private void AnimationTrigger() => player.AnimationTrigger();
+        private void AnimationFinishTrigger() => Player.AnimationFinishTrigger();
+        private void AnimationTrigger() => Player.AnimationTrigger();
     }
 }
