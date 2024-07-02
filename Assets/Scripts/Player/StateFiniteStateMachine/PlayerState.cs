@@ -10,6 +10,7 @@ namespace Player.State
         protected PlayerData playerData;
 
         protected bool isAnimationFinished;
+        protected bool isExitingState;
 
         protected float startTime;
 
@@ -29,12 +30,14 @@ namespace Player.State
             startTime = Time.time;
             player.Anim.SetBool(animBoolName, true);
             isAnimationFinished = false;
-            Debug.Log("current state: " + this.GetType().Name + " isAnimationFinished: " + isAnimationFinished);
+           // Debug.Log("current state: " + this.GetType().Name + " isAnimationFinished: " + isAnimationFinished);
+            isExitingState = false;
         }
 
         public virtual void Exit()
         {
             player.Anim.SetBool(animBoolName, false);
+            isExitingState = true;
         }
 
         public virtual void LogicUpdate()
@@ -55,6 +58,7 @@ namespace Player.State
         public virtual void AnimationTrigger() { }
 
         public virtual void FinishAnimationTrigger() => isAnimationFinished = true;
+
 
     }
 }

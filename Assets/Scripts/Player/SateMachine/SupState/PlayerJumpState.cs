@@ -4,7 +4,7 @@ using Player.State;
 
 namespace Player.SateMachine.SupState
 {
-    public class PlayerJumpState : PlayerAbility
+    public class PlayerJumpState : PlayerAbilityState
     {
         private int amountOfJumpsLeft;
         public PlayerJumpState(Player player, PlayerStateMachine stateMachine, PlayerData playerData, string animBoolName) : base(player, stateMachine, playerData, animBoolName)
@@ -16,8 +16,10 @@ namespace Player.SateMachine.SupState
         {
             base.Enter();
 
+            player.InputHandler.UseJumpInput();
+
             player.SetVelocityY(playerData.jumpVelocity);
-            isAbilityDone = true;
+            IsAbilityDone = true;
 
             amountOfJumpsLeft--;
             player.InAirState.SetIsJumping();

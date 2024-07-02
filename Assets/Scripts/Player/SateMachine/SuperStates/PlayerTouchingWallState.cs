@@ -4,14 +4,16 @@ using UnityEngine;
 
 namespace Player.SateMachine.SuperStates
 {
-    public class PlayerTouchingState : PlayerState
+    public class PlayerTouchingWallState : PlayerState
     {
         protected bool isGrounded;
         protected bool isTouchingWall;
+        protected bool jumpInput;
         protected int xInput;
         protected int yInput;
         protected bool grabInput;
-        public PlayerTouchingState(Player player, PlayerStateMachine stateMachine, PlayerData playerData, string animBoolName) : base(player, stateMachine, playerData, animBoolName)
+        protected bool isTouchingLedge;
+        public PlayerTouchingWallState(Player player, PlayerStateMachine stateMachine, PlayerData playerData, string animBoolName) : base(player, stateMachine, playerData, animBoolName)
         {
         }
 
@@ -32,6 +34,12 @@ namespace Player.SateMachine.SuperStates
             xInput = player.InputHandler.NormilizedInputX;
             yInput = player.InputHandler.NormilizedInputY;
             grabInput = player.InputHandler.GrabInput;
+            jumpInput = player.InputHandler.JumpInput;
+
+            if (jumpInput) {
+                player.WallJumpState.DetermineWallJumpDirection(isTouchingWall);
+                stateMachine.ChangeState(player.WallJumpState);
+            }
 
             if (isGrounded && !grabInput)
             {
@@ -40,12 +48,9 @@ namespace Player.SateMachine.SuperStates
             else if(!isTouchingWall || (xInput != player.FacingDirection && !grabInput))
             {
                 stateMachine.ChangeState(player.InAirState);
+            }else if (!isTouchingWall && !isTouchingLedge) {
+                stateMachine.ChangeState(player.LedgeClimbState);
             }
-        }
-
-        public override void PhysicsUpdate()
-        {
-            base.PhysicsUpdate();
         }
 
         public override void DoChecks()
@@ -54,16 +59,12 @@ namespace Player.SateMachine.SuperStates
 
             isGrounded = player.CheckIfGrounded();
             isTouchingWall = player.CheckIfTouchingWall();
+            isTouchingLedge = player.CheckIfTouchingLedge();
+
+            if (isTouchingWall && !isTouchingLedge) {
+                player.LedgeClimbState.SetDetectedPosition(player.transform.position);
+            }
         }
 
-        public override void AnimationTrigger()
-        {
-            base.AnimationTrigger();
-        }
-
-        public override void FinishAnimationTrigger()
-        {
-            base.FinishAnimationTrigger();
-        }
     }
 }

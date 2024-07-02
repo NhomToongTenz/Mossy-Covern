@@ -4,7 +4,7 @@ using Player.State;
 
 namespace Player.SateMachine.SupState
 {
-    public class PlayerWallClimbState : PlayerTouchingState
+    public class PlayerWallClimbState : PlayerTouchingWallState
     {
         public PlayerWallClimbState(Player player, PlayerStateMachine stateMachine, PlayerData playerData, string animBoolName) : base(player, stateMachine, playerData, animBoolName)
         {
@@ -14,12 +14,13 @@ namespace Player.SateMachine.SupState
         {
             base.LogicUpdate();
 
-            player.SetVelocityY(playerData.wallClimbVelocity);
+            if (!isExitingState) {
+                player.SetVelocityY(playerData.wallClimbVelocity);
 
-            if (yInput == 1)
-            {
-                stateMachine.ChangeState(player.WallGrabState);
+                if (yInput == 1 && !isExitingState) stateMachine.ChangeState(player.WallGrabState);
             }
+
+
         }
     }
 }

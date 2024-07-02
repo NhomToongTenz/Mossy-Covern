@@ -7,10 +7,12 @@ namespace Player.SateMachine.SuperStates
     public class PlayerGroundedState : PlayerState
     {
         protected int xInput;
+        protected bool dashInput;
         bool JumpInput;
         bool isGrounded;
         private bool grabInput;
         private bool isTouchingWall;
+        private bool isTouchingLedge;
         public PlayerGroundedState(Player player, PlayerStateMachine stateMachine, PlayerData playerData, string animBoolName) : base(player, stateMachine, playerData, animBoolName)
         {
         }
@@ -20,12 +22,15 @@ namespace Player.SateMachine.SuperStates
             base.Enter();
 
             player.JumpState.ResetAmountOfJumpsLeft();
+            player.DashState.ResetCanDash();
         }
 
         public override void Exit()
         {
             base.Exit();
+
         }
+
 
         public override void LogicUpdate()
         {
@@ -34,27 +39,22 @@ namespace Player.SateMachine.SuperStates
             xInput = player.InputHandler.NormilizedInputX;
             JumpInput = player.InputHandler.JumpInput;
             grabInput = player.InputHandler.GrabInput;
+            dashInput = player.InputHandler.DashInput;
 
             if (JumpInput && player.JumpState.CanJump())
             {
-                player.InputHandler.UseJumpInput();
                 stateMachine.ChangeState(player.JumpState);
             }else if (!isGrounded)
             {
                 player.InAirState.StartCoyoteTime();
                 player.JumpState.DecreaseAmountOfJumpsLeft();
                 stateMachine.ChangeState(player.InAirState);
-            }else if (isTouchingWall && grabInput)
+            }else if (isTouchingWall && grabInput && isTouchingLedge)
             {
                 stateMachine.ChangeState(player.WallGrabState);
+            }else if (dashInput && player.DashState.CheckIfCanDash()) {
+                stateMachine.ChangeState(player.DashState);
             }
-            else
-            {
-                player.CheckIfShouldFlip(xInput);
-                player.SetVelocityX(playerData.movementVelocity * xInput);
-                player.Anim.SetFloat("xVelocity", Mathf.Abs(player.CurrentVelocity.x));
-            }
-
         }
 
         public override void PhysicsUpdate()
@@ -67,6 +67,8 @@ namespace Player.SateMachine.SuperStates
             base.DoChecks();
             isGrounded = player.CheckIfGrounded();
             isTouchingWall = player.CheckIfTouchingWall();
+            isTouchingLedge = player.CheckIfTouchingLedge();
+
         }
     }
 }

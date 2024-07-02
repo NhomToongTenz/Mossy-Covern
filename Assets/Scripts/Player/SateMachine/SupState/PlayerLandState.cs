@@ -15,6 +15,9 @@ namespace Player.SateMachine.SupState
         {
             base.LogicUpdate();
 
+            if(isExitingState)
+                return;
+
             if(xInput != 0)
                 stateMachine.ChangeState(player.MoveState);
             else if(isAnimationFinished)
