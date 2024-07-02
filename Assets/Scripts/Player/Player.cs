@@ -33,6 +33,7 @@ namespace Player
         public PlayerInputHandler InputHandler { get; private set; }
         public Rigidbody2D RB { get; private set; }
         public Vector2 CurrentVelocity { get; private set; }
+        public Transform DashDirectionIndicator { get; private set; }
 
         #endregion
 
@@ -80,6 +81,7 @@ namespace Player
             Anim = GetComponentInChildren<Animator>();
             InputHandler = GetComponent<PlayerInputHandler>();
             RB = GetComponent<Rigidbody2D>();
+            DashDirectionIndicator = transform.Find("DashDirectionIndicator");
 
             StateMachine.Initialize(IdleState);
         }
@@ -98,6 +100,13 @@ namespace Player
         #endregion
 
         #region Set Functions
+
+        public void SetVelocity(float velocity, Vector2 direction) {
+            workspace = direction * velocity;
+            RB.velocity = workspace;
+            CurrentVelocity = workspace;
+        }
+
 
         public void SetVelocityZero() {
             RB.velocity = Vector2.zero;
@@ -163,9 +172,9 @@ namespace Player
                                                 , playerData.wallCheckDistance, playerData.whatIsGround);
             float xDist = xHit.distance;
 
-            workspace.Set(xDist * FacingDirection, 0f);
+            workspace.Set((xDist + 0.015f) * FacingDirection, 0f);
             RaycastHit2D yHit = Physics2D.Raycast(ledgeCheck.position + (Vector3)(workspace), Vector2.down
-                                                , ledgeCheck.position.y - wallCheck.position.y
+                                                , ledgeCheck.position.y - wallCheck.position.y + 0.015f
                                                 , playerData.whatIsGround);
             float yDist = yHit.distance;
 
