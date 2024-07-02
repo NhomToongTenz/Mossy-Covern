@@ -1,4 +1,5 @@
 using Player.Data;
+using Player.Input_System;
 using Player.State;
 
 namespace Player.SateMachine.SuperStates
@@ -39,7 +40,13 @@ namespace Player.SateMachine.SuperStates
             _grabInput = player.InputHandler.GrabInput;
             DashInput = player.InputHandler.DashInput;
 
-            if (_jumpInput && player.JumpState.CanJump()) {
+            if (player.InputHandler.AttackInputs[(int)CombatInputs.Primary] && !IsTouchingCeiling) {
+                stateMachine.ChangeState(player.PrimaryAttackState);
+            }
+            else if (player.InputHandler.AttackInputs[(int)CombatInputs.Secondary] && !IsTouchingCeiling) {
+                stateMachine.ChangeState(player.SecondaryAttackState);
+            }
+            else if (_jumpInput && player.JumpState.CanJump()) {
                 stateMachine.ChangeState(player.JumpState);
             }
             else if (!_isGrounded) {
