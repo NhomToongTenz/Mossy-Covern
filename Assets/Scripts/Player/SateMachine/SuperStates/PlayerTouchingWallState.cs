@@ -1,54 +1,43 @@
 using Player.Data;
 using Player.State;
-using UnityEngine;
 
 namespace Player.SateMachine.SuperStates
 {
     public class PlayerTouchingWallState : PlayerState
     {
-        protected bool isGrounded;
-        protected bool isTouchingWall;
-        protected bool jumpInput;
-        protected int xInput;
-        protected int yInput;
-        protected bool grabInput;
-        protected bool isTouchingLedge;
+        protected bool IsGrounded;
+        protected bool IsTouchingWall;
+        protected bool JumpInput;
+        protected int XInput;
+        protected int YInput;
+        protected bool GrabInput;
+        protected bool IsTouchingLedge;
         public PlayerTouchingWallState(Player player, PlayerStateMachine stateMachine, PlayerData playerData, string animBoolName) : base(player, stateMachine, playerData, animBoolName)
         {
-        }
-
-        public override void Enter()
-        {
-            base.Enter();
-        }
-
-        public override void Exit()
-        {
-            base.Exit();
         }
 
         public override void LogicUpdate()
         {
             base.LogicUpdate();
 
-            xInput = player.InputHandler.NormilizedInputX;
-            yInput = player.InputHandler.NormilizedInputY;
-            grabInput = player.InputHandler.GrabInput;
-            jumpInput = player.InputHandler.JumpInput;
+            XInput = player.InputHandler.NormilizedInputX;
+            YInput = player.InputHandler.NormilizedInputY;
+            GrabInput = player.InputHandler.GrabInput;
+            JumpInput = player.InputHandler.JumpInput;
 
-            if (jumpInput) {
-                player.WallJumpState.DetermineWallJumpDirection(isTouchingWall);
+            if (JumpInput) {
+                player.WallJumpState.DetermineWallJumpDirection(IsTouchingWall);
                 stateMachine.ChangeState(player.WallJumpState);
             }
 
-            if (isGrounded && !grabInput)
+            if (IsGrounded && !GrabInput)
             {
                 stateMachine.ChangeState(player.IdleState);
             }
-            else if(!isTouchingWall || (xInput != player.FacingDirection && !grabInput))
+            else if(!IsTouchingWall || (XInput != player.FacingDirection && !GrabInput))
             {
                 stateMachine.ChangeState(player.InAirState);
-            }else if (!isTouchingWall && !isTouchingLedge) {
+            }else if (!IsTouchingWall && !IsTouchingLedge) {
                 stateMachine.ChangeState(player.LedgeClimbState);
             }
         }
@@ -57,11 +46,11 @@ namespace Player.SateMachine.SuperStates
         {
             base.DoChecks();
 
-            isGrounded = player.CheckIfGrounded();
-            isTouchingWall = player.CheckIfTouchingWall();
-            isTouchingLedge = player.CheckIfTouchingLedge();
+            IsGrounded = player.CheckIfGrounded();
+            IsTouchingWall = player.CheckIfTouchingWall();
+            IsTouchingLedge = player.CheckIfTouchingLedge();
 
-            if (isTouchingWall && !isTouchingLedge) {
+            if (IsTouchingWall && !IsTouchingLedge) {
                 player.LedgeClimbState.SetDetectedPosition(player.transform.position);
             }
         }

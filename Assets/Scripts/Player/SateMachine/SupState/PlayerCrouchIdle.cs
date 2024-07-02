@@ -4,12 +4,14 @@ using Player.State;
 
 namespace Player.SateMachine.SupState
 {
-    public class PlayerCrouchMoveState : PlayerGroundedState
+    public class PlayerCrouchIdle : PlayerGroundedState
     {
-        public PlayerCrouchMoveState(Player player, PlayerStateMachine stateMachine, PlayerData playerData, string animBoolName) : base(player, stateMachine, playerData, animBoolName) { }
+        public PlayerCrouchIdle(Player player, PlayerStateMachine stateMachine, PlayerData playerData
+                              , string animBoolName) : base(player, stateMachine, playerData, animBoolName) { }
 
         public override void Enter() {
             base.Enter();
+            player.SetVelocityZero();
             player.SetColliderHeight(playerData.crouchColliderHeight);
         }
 
@@ -21,12 +23,10 @@ namespace Player.SateMachine.SupState
             base.LogicUpdate();
 
             if (!isExitingState) {
-                player.SetVelocityX(playerData.crouchMovementVelocity * player.FacingDirection);
-                player.CheckIfShouldFlip(XInput);
-                if (XInput == 0) {
-                    stateMachine.ChangeState(player.CrouchIdleState);
+                if (XInput != 0) {
+                    stateMachine.ChangeState(player.CrouchMoveState);
                 }else if (YInput != -1 && !IsTouchingCeiling) {
-                    stateMachine.ChangeState(player.MoveState);
+                    stateMachine.ChangeState(player.IdleState);
                 }
             }
         }

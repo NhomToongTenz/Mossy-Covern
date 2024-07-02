@@ -6,35 +6,38 @@ namespace Player.SateMachine.SupState
 {
     public class PlayerLedgeClimbState : PlayerState
     {
-        private Vector2 detectedPos;
-        private Vector2 cornerPos;
-        private Vector2 startPos;
-        private Vector2 stopPos;
+        private Vector2 _detectedPos;
+        private Vector2 _cornerPos;
+        private Vector2 _startPos;
+        private Vector2 _stopPos;
 
-        private bool isHanging;
-        private bool isClimbing;
-        private bool jumpInput;
+        private bool _isHanging;
+        private bool _isClimbing;
+        private bool _jumpInput;
+        private bool _isTouchingCeiling;
 
-        private int xInput;
-        private int yInput;
+        private int _xInput;
+        private int _yInput;
+        private static readonly int ClimbLedge = Animator.StringToHash("climbLedge");
+        private static readonly int IsTouchingCeiling = Animator.StringToHash("isTouchingCeiling");
 
         public PlayerLedgeClimbState(Player player, PlayerStateMachine stateMachine, PlayerData playerData, string animBoolName) : base(player, stateMachine, playerData, animBoolName) { }
 
-        public void SetDetectedPosition(Vector2 pos) => detectedPos = pos;
+        public void SetDetectedPosition(Vector2 pos) => _detectedPos = pos;
 
         public override void Enter() {
             base.Enter();
 
             player.SetVelocityZero();
-            player.transform.position = detectedPos;
-            cornerPos = player.DetermineCornerPosition();
+            player.transform.position = _detectedPos;
+            _cornerPos = player.DetermineCornerPosition();
 
-            startPos.Set(cornerPos.x - (player.FacingDirection * playerData.startOffset.x)
-                       , cornerPos.y - playerData.startOffset.y);
-            stopPos.Set(cornerPos.x + (player.FacingDirection * playerData.stopOffset.x)
-                      , cornerPos.y + playerData.stopOffset.y);
+            _startPos.Set(_cornerPos.x - (player.FacingDirection * playerData.startOffset.x)
+                       , _cornerPos.y - playerData.startOffset.y);
+            _stopPos.Set(_cornerPos.x + (player.FacingDirection * playerData.stopOffset.x)
+                      , _cornerPos.y + playerData.stopOffset.y);
 
-            player.transform.position = startPos;
+            player.transform.position = _startPos;
 
         }
 
@@ -42,23 +45,30 @@ namespace Player.SateMachine.SupState
             base.LogicUpdate();
 
             if (isAnimationFinished) {
-                stateMachine.ChangeState(player.IdleState);
+                if (_isTouchingCeiling) {
+                    stateMachine.ChangeState(player.CrouchIdleState);
+                }
+                else {
+                    stateMachine.ChangeState(player.IdleState);
+                }
+
             }
             else {
-                xInput = player.InputHandler.NormilizedInputX;
-                yInput = player.InputHandler.NormilizedInputY;
-                jumpInput = player.InputHandler.JumpInput;
+                _xInput = player.InputHandler.NormilizedInputX;
+                _yInput = player.InputHandler.NormilizedInputY;
+                _jumpInput = player.InputHandler.JumpInput;
 
                 player.SetVelocityZero();
-                player.transform.position = startPos;
+                player.transform.position = _startPos;
 
-                if (xInput == player.FacingDirection && isHanging && !isClimbing) {
-                    isClimbing = true;
-                    player.Anim.SetBool("climbLegde", true);
+                if (_xInput == player.FacingDirection && _isHanging && !_isClimbing) {
+                    CheckForSpace();
+                    _isClimbing = true;
+                    player.Anim.SetBool(ClimbLedge, true);
                 }
-                else if (yInput == -1 && isHanging && !isClimbing) {
+                else if (_yInput == -1 && _isHanging && !_isClimbing) {
                     stateMachine.ChangeState(player.InAirState);
-                }else if (jumpInput && !isClimbing) {
+                }else if (_jumpInput && !_isClimbing) {
                     player.WallJumpState.DetermineWallJumpDirection(true);
                     stateMachine.ChangeState(player.WallJumpState);
                 }
@@ -68,23 +78,31 @@ namespace Player.SateMachine.SupState
         public override void Exit() {
             base.Exit();
 
-            isHanging = false;
+            _isHanging = false;
 
-            if (isClimbing) {
-                player.transform.position = stopPos;
-                isClimbing = false;
+            if (_isClimbing) {
+                player.transform.position = _stopPos;
+                _isClimbing = false;
             }
         }
 
         public override void FinishAnimationTrigger() {
             base.FinishAnimationTrigger();
-            player.Anim.SetBool("climbLegde", false);
+            player.Anim.SetBool(ClimbLedge, false);
         }
 
         public override void AnimationTrigger() {
             base.AnimationTrigger();
 
-            isHanging = true;
+            _isHanging = true;
+        }
+
+        private void CheckForSpace() {
+            _isTouchingCeiling =
+                Physics2D.Raycast(_cornerPos + (Vector2.up * 0.015f) +
+                                  (Vector2.right * (player.FacingDirection * 0.015f)), Vector2.up
+                                , playerData.standColliderHeight, playerData.whatIsGround);
+            player.Anim.SetBool(IsTouchingCeiling, _isTouchingCeiling);
         }
     }
 }

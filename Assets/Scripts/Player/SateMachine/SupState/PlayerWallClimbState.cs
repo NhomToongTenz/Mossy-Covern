@@ -17,7 +17,7 @@ namespace Player.SateMachine.SupState
             if (!isExitingState) {
                 player.SetVelocityY(playerData.wallClimbVelocity);
 
-                if (yInput == 1 && !isExitingState) stateMachine.ChangeState(player.WallGrabState);
+                if (YInput == 1 && !isExitingState) stateMachine.ChangeState(player.WallGrabState);
             }
 
 

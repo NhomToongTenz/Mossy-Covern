@@ -8,7 +8,7 @@ namespace Player.SateMachine.SupState
     public class PlayerDashState : PlayerAbilityState
     {
         public bool CanDash { get; private set; }
-        private bool dashInputStop;
+        private bool _dashInputStop;
         private bool _isHolding;
 
         private float _lashDashTime;
@@ -17,6 +17,8 @@ namespace Player.SateMachine.SupState
         private Vector2 _dashDirection;
         private Vector2 _dashDirectionInput;
         private Vector2 _lastAIPos;
+        private static readonly int YVelocity = Animator.StringToHash("yVelocity");
+        private static readonly int XVelocity = Animator.StringToHash("xVelocity");
 
         public PlayerDashState(Player player, PlayerStateMachine stateMachine, PlayerData playerData
                              , string animBoolName) : base(player, stateMachine, playerData, animBoolName) { }
@@ -42,12 +44,12 @@ namespace Player.SateMachine.SupState
             base.LogicUpdate();
 
             if (!isExitingState) {
-                player.Anim.SetFloat("yVelocity", player.CurrentVelocity.y);
-                player.Anim.SetFloat("xVelocity", Mathf.Abs(player.CurrentVelocity.x));
+                player.Anim.SetFloat(YVelocity, player.CurrentVelocity.y);
+                player.Anim.SetFloat(XVelocity, Mathf.Abs(player.CurrentVelocity.x));
 
                 if (_isHolding) {
-                    _dashDirectionInput = player.InputHandler.RawDashDirectionInput;
-                    dashInputStop = player.InputHandler.DashInputStop;
+                    _dashDirectionInput = player.InputHandler.DashDirectionInput;
+                    _dashInputStop = player.InputHandler.DashInputStop;
 
                     if (_dashDirectionInput != Vector2.zero) {
                         _dashDirection = _dashDirectionInput;
@@ -57,12 +59,12 @@ namespace Player.SateMachine.SupState
                     float angle = Vector2.SignedAngle(Vector2.right, _dashDirection);
                     player.DashDirectionIndicator.rotation = Quaternion.Euler(0f, 0f, angle - 45f);
 
-                    if (dashInputStop || Time.unscaledTime >= startTime + playerData.maxHoldTime) {
+                    if (_dashInputStop || Time.unscaledTime >= startTime + playerData.maxHoldTime) {
                         _isHolding = false;
                         Time.timeScale = 1f;
                         startTime = Time.time;
                         player.CheckIfShouldFlip(Mathf.RoundToInt(_dashDirection.x));
-                        player.RB.drag = playerData.drag;
+                        player.Rb.drag = playerData.drag;
                         player.SetVelocity(playerData.dashVelocity, _dashDirection);
                         player.DashDirectionIndicator.gameObject.SetActive(false);
                         PlaceAfterImage();
@@ -72,7 +74,7 @@ namespace Player.SateMachine.SupState
                     player.SetVelocity(playerData.dashVelocity, _dashDirection);
                     CheckIfShouldPlaceAfterImage();
                     if (Time.time >= startTime + playerData.dashTime) {
-                        player.RB.drag = 0f;
+                        player.Rb.drag = 0f;
                         IsAbilityDone = true;
                         _lashDashTime = Time.time;
                     }

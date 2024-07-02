@@ -40,6 +40,11 @@ namespace Player.Data
         public float dashEndYMultiplier = 0.2f;
         public float distBetweenAfterImages = 0.5f;
 
+        [Header("Crouch Variables")]
+        public float crouchMovementVelocity = 5f;
+        public float crouchColliderHeight = 0.8f;
+        public float standColliderHeight = 1.888014f;
+
         [Header("Check Variables")]
         public float groundCheckRadius = 0.3f;
         public float wallCheckDistance = 0.5f;
